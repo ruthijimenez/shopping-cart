@@ -1,32 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: shopping-cart-deployment
+  labels:
+    app.kubernetes.io/name: shopping-cart
+  name: shopping-cart
 spec:
-  replicas: 1
+  replicas: 2  # Adjust the number of replicas as needed
   selector:
     matchLabels:
-      app: shopping-cart
+      app.kubernetes.io/name: shopping-cart
   template:
     metadata:
       labels:
-        app: shopping-cart
+        app.kubernetes.io/name: shopping-cart
     spec:
       containers:
-        - name: shopping-cart
-          image: shopping-cart-image:latest
-          ports:
-            - containerPort: 5000
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: shopping-cart-service
-spec:
-  selector:
-    app: shopping-cart
-  ports:
-    - protocol: TCP
-      port: 5000
-      targetPort: 5000
-  type: NodePort
+      - image: shopping-cart
+        name: shopping-cart
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 5000  # Assuming your service runs on port 5000

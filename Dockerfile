@@ -1,4 +1,4 @@
-# Use the official Python image as a parent image
+# Use an official Python runtime as a parent image
 FROM python:3.9
 
 # Set the working directory in the container
@@ -8,14 +8,14 @@ WORKDIR /app
 COPY . /app
 
 # Install Flask and SQLAlchemy
+RUN pip install Flask
 RUN pip install Flask SQLAlchemy
 
-# Expose the port your Flask app will run on
+# Make port 5000 available to the world outside this container
 EXPOSE 5000
 
-# Define environment variables
-ENV FLASK_APP=app.py
-ENV FLASK_RUN_HOST=0.0.0.0
+# Define environment variable for database location
+ENV SQLALCHEMY_DATABASE_URI sqlite:///shopping_cart.db
 
 # Run app.py when the container launches
 CMD ["python", "app.py"]

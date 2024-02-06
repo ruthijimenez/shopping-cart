@@ -8,7 +8,8 @@ python3 -m venv venv
 source venv/bin/activate  # On Windows, use "venv\Scripts\activate"
 
 ## Install Required Packages (Install Flask and SQLAlchemy)
-pip install Flask SQLAlchemy
+pip install Flask
+pip install Flask-SQLAlchemy
 
 ## Create the Project Structure:
 shopping-cart/

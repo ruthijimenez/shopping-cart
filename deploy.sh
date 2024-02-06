@@ -1,36 +1,25 @@
 #!/bin/bash
 
-# Start Minikube
-echo "Starting Minikube..."
-minikube start
+source venv/bin/activate
+# Step 1: Build the Docker image using the existing Dockerfile
+# Replace 'shopping-cart' with the name you want for your Docker image
+docker build -t shopping-cart .
 
-# Tag the image with Minikube's Docker daemon
-eval $(minikube -p minikube docker-env)
+# Step 2: Tag the Docker image
+# Replace '1.0.0' with the version you want for your Docker image
+docker tag shopping-cart:latest shopping-cart:1.0.0
 
-# Build the Docker image
-docker build --rm -t shopping-cart-image:latest .
+# Step 3: Set Minikube to use the local Docker daemon
+eval $(minikube docker-env)
 
-# Check if the deployment already exists
-if ! kubectl get deployment shopping-cart-deployment &> /dev/null; then
-  # Apply the Kubernetes deployment
-  kubectl apply -f minikubeDeployment.yaml
-else
-  echo "Deployment 'shopping-cart-deployment' already exists. Skipping deployment."
-fi
+# Step 4: Deploy the Docker image to Minikube using the existing YAML file
+# Replace 'minikubeDeployment.yaml' with the path to your YAML file if it's not in the current directory
+kubectl apply -f minikubeDeployment.yaml
 
-# Check if the service already exists
-if ! kubectl get service shopping-cart-service &> /dev/null; then
-  # Expose the deployment as a NodePort service
-  kubectl expose deployment shopping-cart-deployment --type=NodePort --name=shopping-cart-service
-else
-  echo "Service 'shopping-cart-service' already exists. Skipping service creation."
-fi
+# Step 5: Expose the service to access it on localhost
+# Replace 'shopping-cart' with the name of your service in the YAML file
+kubectl expose deployment shopping-cart --type=LoadBalancer --port=5000
+# minikube service shopping-cart
 
-# Get the NodePort assigned to the service
-NODE_PORT=$(kubectl get svc shopping-cart-service -o jsonpath='{.spec.ports[0].nodePort}')
-
-# Get Minikube IP
-MINIKUBE_IP=$(minikube ip)
-
-# Display the endpoint
-echo "Access your Flask application at: http://${MINIKUBE_IP}:${NODE_PORT}"
+echo "Deployment complete! Access the service at the following URL:"
+minikube service shopping-cart --url
