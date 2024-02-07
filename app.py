@@ -23,4 +23,4 @@ def home():
     return render_template('home.html', cart_items=cart_items)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0')
