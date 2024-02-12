@@ -20,7 +20,7 @@ def home():
         cart_items = cart.items
     else:
         cart_items = []
-    return render_template('home.html', cart_items=cart_items)
+    return render_template('cart.html', cart_items=cart_items)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')

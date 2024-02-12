@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Shopping Cart</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f8f8;
+        }
+        h1 {
+            text-align: center;
+        }
+        #cart-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            max-width: 1200px;
+            margin: auto;
+            align-items: stretch;
+        }
+        
+        .cart-item {
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            height: 280px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .cart-item img {
+            width: 100%;
+            height: 170px;
+            object-fit: cover;
+            border-radius: 8px;
+            flex: 1;
+        }
+        
+        .cart-item h2 {
+            font-size: 14px;
+            color: #333;
+            flex: 1;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+        
+        .cart-item p {
+            margin: 0;
+            color: #666;
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <h1>Shopping Cart</h1>
+    <div id="cart-container">
+        <!-- Cart items will be appended here by the JavaScript code -->
+    </div>
+    
+    <script>
+        $(document).ready(function() {
+            $.getJSON('/cart', function(data) {
+                data.forEach(function(item) {
+                    var cartItem = `
+                    <div class="cart-item">
+                        <img src="${item.image}" alt="${item.name}" />
+                        <h2>${item.description}</h2>
+                        <p>Quantity: ${item.quantity}</p>
+                        <p>Price: $ ${item.price}</p>
+                    </div>`;
+                    $('#cart-container').append(cartItem);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
