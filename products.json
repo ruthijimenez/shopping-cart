@@ -1,0 +1,23 @@
+[
+    {
+        "name": "Shoes",
+        "description": "Black Converse Womens Size 7.5",
+        "price": 50.00,
+        "image": "templates/images/shoes.jpeg"
+
+    },
+    {
+        "name": "Pants",
+        "description": "Levis 501 Jeans. Size 6",
+        "price": 40.00,
+        "image": "templates/images/pants.jpeg"
+
+    },
+    {
+        "name": "Shirt",
+        "description": "Attack on Titan Graphic Tee. Size M",
+        "price": 25.00,
+        "image": "templates/images/shirt.jpeg"
+
+    }
+]

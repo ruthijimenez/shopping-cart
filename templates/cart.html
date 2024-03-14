@@ -1,6 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shopping Cart</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <style>
@@ -64,22 +66,77 @@
     <div id="cart-container">
         <!-- Cart items will be appended here by the JavaScript code -->
     </div>
+
+    <div id="total-container">
+        Total: <span id="total-price">$0.00</span>
+    </div>
     
     <script>
         $(document).ready(function() {
-            $.getJSON('/cart', function(data) {
-                data.forEach(function(item) {
+            $.getJSON('/cart/default_user', function(data) {
+                data.items.forEach(function(item) {
                     var cartItem = `
-                    <div class="cart-item">
-                        <img src="${item.image}" alt="${item.name}" />
-                        <h2>${item.description}</h2>
-                        <p>Quantity: ${item.quantity}</p>
-                        <p>Price: $ ${item.price}</p>
+                    <div class="cart-item" data-product-id="${item.product.id}">
+                        <img src="${item.product.image}" alt="${item.product.name}" />
+                        <h2>${item.product.description}</h2>
+                        <p>Quantity: <span class="quantity">${item.quantity}</span></p>
+                        <p>Price: $ ${item.product.price}</p>
+                        <button class="increment-btn">+</button>
+                        <button class="decrement-btn">-</button>
                     </div>`;
                     $('#cart-container').append(cartItem);
                 });
+                updateTotal(data.items); // Update total price
+            });
+
+            // Event listeners for increment and decrement buttons
+            $('#cart-container').on('click', '.increment-btn', function() {
+                var $cartItem = $(this).closest('.cart-item');
+                var productId = $cartItem.data('product-id');
+                var quantity = parseInt($cartItem.find('.quantity').text());
+                quantity += 1;
+                updateQuantity(productId, quantity);
+            });
+
+            $('#cart-container').on('click', '.decrement-btn', function() {
+                var $cartItem = $(this).closest('.cart-item');
+                var productId = $cartItem.data('product-id');
+                var quantity = parseInt($cartItem.find('.quantity').text());
+                if (quantity > 1) {
+                    quantity -= 1;
+                    updateQuantity(productId, quantity);
+                }
             });
         });
+
+        // Function to update the quantity of an item
+        function updateQuantity(productId, quantity) {
+            $.ajax({
+                url: `/cart/default_user/update_item`,
+                type: 'PUT',
+                contentType: 'application/json',
+                data: JSON.stringify({product_id: productId, quantity: quantity}),
+                success: function(response) {
+                    // Update quantity displayed on the page
+                    $(`.cart-item[data-product-id="${productId}"] .quantity`).text(quantity);
+                    updateTotal(); // Update total price
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr.responseText);
+                }
+            });
+        }
+
+        // Function to update the total price
+        function updateTotal() {
+            $.getJSON('/cart/default_user', function(data) {
+                var totalPrice = 0;
+                data.items.forEach(function(item) {
+                    totalPrice += item.product.price * item.quantity;
+                });
+                $('#total-price').text('$' + totalPrice.toFixed(2));
+            });
+        }
     </script>
 </body>
 </html>

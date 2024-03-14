@@ -32,7 +32,7 @@ chmod +x deploy.sh
 ## To run without script and minikube
 python app.py
 
-Your shopping cart microservice should now be running: http://localhost:5000
+Your shopping cart microservice should now be running: http://localhost:3000
 
 ## Testing and Further Development:
 You can use tools like curl or Postman to test the endpoints defined in routes.py. Additionally, you can expand the functionality to handle adding, updating, and removing items from the cart as per your requirements.

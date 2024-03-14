@@ -10,8 +10,8 @@ COPY . /app
 # Install any needed packageAs specified in requirements.txt
 RUN pip install -r requirements.txt
 
-# Make port 5000 available to the world outside this container
-EXPOSE 5000
+# Make port 3000 available to the world outside this container
+EXPOSE 3000
 
 # Define environment variable for database location
 ENV SQLALCHEMY_DATABASE_URI sqlite:///shopping_cart.db
