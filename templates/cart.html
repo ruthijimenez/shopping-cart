@@ -4,139 +4,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shopping Cart</title>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f8f8f8;
-        }
-        h1 {
-            text-align: center;
-        }
-        #cart-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 20px;
-            padding: 20px;
-            max-width: 1200px;
-            margin: auto;
-            align-items: stretch;
-        }
-        
-        .cart-item {
-            border: 1px solid #ddd;
-            padding: 10px;
-            border-radius: 8px;
-            text-align: center;
-            height: 280px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-        
-        .cart-item img {
-            width: 100%;
-            height: 170px;
-            object-fit: cover;
-            border-radius: 8px;
-            flex: 1;
-        }
-        
-        .cart-item h2 {
-            font-size: 14px;
-            color: #333;
-            flex: 1;
-            overflow: hidden;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-        }
-        
-        .cart-item p {
-            margin: 0;
-            color: #666;
-            flex: 1;
-        }
-    </style>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body>
-    <h1>Shopping Cart</h1>
-    <div id="cart-container">
-        <!-- Cart items will be appended here by the JavaScript code -->
+<div class="container mx-auto mt-10">
+    <div class="flex shadow-md my-10">
+        <div class="w-3/4 bg-white px-10 py-10">
+            <div class="flex justify-between border-b pb-8">
+                <h1 class="text-5xl font-bold text-gray-900">Shopping Cart</h1>
+            </div>
+            <a href="#" class="flex font-semibold text-indigo-600 text-sm mt-10">
+                <svg class="fill-current mr-2 text-indigo-600 w-4" viewBox="0 0 448 512"><path d="..."></path></svg>
+                Continue Shopping
+            </a>
+        </div>
+
+        <!-- Item cards here-->
+
+        <div id="summary" class="w-1/4 divide-gray-400 px-8 py-10">
+            <h1 class="font-semibold text-2xl pb-8 py-10">Order Summary</h1>
+            <div class="flex justify-between mt-10 mb-5">
+                <span class="font-semibold text-sm text-gray-600 uppercase">Subtotal</span>
+                <span class="font-semibold text-gray-600 text-sm">$0.00</span>
+            </div>
+            <div class="flex justify-between mt-10 mb-5">
+                <span class="font-semibold text-sm text-gray-600 uppercase">Shipping estimate</span>
+                <span class="font-semibold text-gray-600 text-sm">$5.00</span>
+            </div>
+            <div class="flex justify-between mt-10 mb-5">
+                <span class="font-semibold text-sm text-gray-600 uppercase">Tax estimate</span>
+                <span class="font-semibold text-gray-600 text-sm">$0.00</span>
+            </div>
+            <div class="mt-8">
+                <div class="flex font-semibold justify-between py-6 text-sm uppercase">
+                    <span>Total cost</span>
+                    <span>$0.00</span>
+                </div>
+                <button class="bg-indigo-500 font-semibold hover:bg-indigo-600 py-3 text-sm text-white uppercase w-full">Checkout</button>
+            </div>
+        </div>
+
     </div>
-
-    <div id="total-container">
-        Total: <span id="total-price">$0.00</span>
-    </div>
-    
-    <script>
-        $(document).ready(function() {
-            $.getJSON('/cart/default_user', function(data) {
-                data.items.forEach(function(item) {
-                    var cartItem = `
-                    <div class="cart-item" data-product-id="${item.product.id}">
-                        <img src="${item.product.image}" alt="${item.product.name}" />
-                        <h2>${item.product.description}</h2>
-                        <p>Quantity: <span class="quantity">${item.quantity}</span></p>
-                        <p>Price: $ ${item.product.price}</p>
-                        <button class="increment-btn">+</button>
-                        <button class="decrement-btn">-</button>
-                    </div>`;
-                    $('#cart-container').append(cartItem);
-                });
-                updateTotal(data.items); // Update total price
-            });
-
-            // Event listeners for increment and decrement buttons
-            $('#cart-container').on('click', '.increment-btn', function() {
-                var $cartItem = $(this).closest('.cart-item');
-                var productId = $cartItem.data('product-id');
-                var quantity = parseInt($cartItem.find('.quantity').text());
-                quantity += 1;
-                updateQuantity(productId, quantity);
-            });
-
-            $('#cart-container').on('click', '.decrement-btn', function() {
-                var $cartItem = $(this).closest('.cart-item');
-                var productId = $cartItem.data('product-id');
-                var quantity = parseInt($cartItem.find('.quantity').text());
-                if (quantity > 1) {
-                    quantity -= 1;
-                    updateQuantity(productId, quantity);
-                }
-            });
-        });
-
-        // Function to update the quantity of an item
-        function updateQuantity(productId, quantity) {
-            $.ajax({
-                url: `/cart/default_user/update_item`,
-                type: 'PUT',
-                contentType: 'application/json',
-                data: JSON.stringify({product_id: productId, quantity: quantity}),
-                success: function(response) {
-                    // Update quantity displayed on the page
-                    $(`.cart-item[data-product-id="${productId}"] .quantity`).text(quantity);
-                    updateTotal(); // Update total price
-                },
-                error: function(xhr, status, error) {
-                    console.error(xhr.responseText);
-                }
-            });
-        }
-
-        // Function to update the total price
-        function updateTotal() {
-            $.getJSON('/cart/default_user', function(data) {
-                var totalPrice = 0;
-                data.items.forEach(function(item) {
-                    totalPrice += item.product.price * item.quantity;
-                });
-                $('#total-price').text('$' + totalPrice.toFixed(2));
-            });
-        }
-    </script>
+</div>
+<script src="https://cdn.tailwindcss.com"></script>
 </body>
 </html>
