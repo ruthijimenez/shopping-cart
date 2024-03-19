@@ -1,94 +1,55 @@
 from flask import Blueprint, request, jsonify
-from models import Cart, CartItem, Product
+from models import Product
 from database import db
 
 cart_blueprint = Blueprint('cart_blueprint', __name__)
 
-@cart_blueprint.route('/cart/<string:user_id>', methods=['GET'])
-def get_cart_by_user_id(user_id):
-    cart = Cart.query.filter_by(user_id=user_id).first()
-    if cart:
-        cart_dict = {
-            'user_id': cart.user_id,
-            'items': [{'product_id': item.product_id, 'quantity': item.quantity} for item in cart.items]
-        }
-        return jsonify(cart_dict)
-    else:
-        return jsonify({"error": "Cart not found"}), 404
+@cart_blueprint.route('/cart', methods=['GET'])
+def get_cart():
+    # Fetch all products considered to be in the cart
+    products = Product.query.all()
+    products_list = [
+        {
+            'product_id': product.id,
+            'name': product.name,
+            'description': product.description,
+            'price': product.price,
+            'image': product.image,
+            'quantity': product.quantity
+        } for product in products
+    ]
+    return jsonify({'items': products_list})
 
-@cart_blueprint.route('/cart/<string:user_id>/add_item', methods=['POST'])
-def add_item_to_cart(user_id):
+@cart_blueprint.route('/cart/add_item', methods=['POST'])
+def add_item_to_cart():
+    # This endpoint might be used for adding completely new products to the cart/database
     data = request.json
-    product_id = data.get('product_id')
-    quantity = data.get('quantity')
+    new_product = Product(
+        name=data['name'],
+        description=data['description'],
+        price=data['price'],
+        image=data['image'],
+        quantity=data['quantity']
+    )
+    db.session.add(new_product)
+    db.session.commit()
+    return jsonify({"message": "Product added to cart successfully"})
 
-    cart = Cart.query.filter_by(user_id=user_id).first()
-
-    if not cart:
-        cart = Cart(user_id=user_id)
-        db.session.add(cart)
-
+@cart_blueprint.route('/cart/remove_item/<int:product_id>', methods=['DELETE'])
+def remove_item_from_cart(product_id):
     product = Product.query.get(product_id)
-
     if not product:
         return jsonify({"error": "Product not found"}), 404
-
-    cart_item = CartItem.query.filter_by(cart=cart, product=product).first()
-
-    if cart_item:
-        cart_item.quantity += quantity
-    else:
-        cart_item = CartItem(cart=cart, product=product, quantity=quantity)
-        db.session.add(cart_item)
-
+    db.session.delete(product)
     db.session.commit()
+    return jsonify({"message": "Product removed from cart successfully"})
 
-    return jsonify({"message": "Item added to cart successfully"})
-
-@cart_blueprint.route('/cart/<string:user_id>/remove_item/<int:product_id>', methods=['DELETE'])
-def remove_item_from_cart(user_id, product_id):
-    cart = Cart.query.filter_by(user_id=user_id).first()
-
-    if not cart:
-        return jsonify({"error": "Cart not found"}), 404
-
-    product = Product.query.get(product_id)
-
-    if not product:
-        return jsonify({"error": "Product not found"}), 404
-
-    cart_item = CartItem.query.filter_by(cart=cart, product=product).first()
-
-    if not cart_item:
-        return jsonify({"error": "Item not found in cart"}), 404
-
-    db.session.delete(cart_item)
-    db.session.commit()
-
-    return jsonify({"message": "Item removed from cart successfully"})
-
-@cart_blueprint.route('/cart/<string:user_id>/update_item', methods=['PUT'])
-def update_item_quantity(user_id):
+@cart_blueprint.route('/cart/update_item', methods=['PUT'])
+def update_item_quantity():
     data = request.json
-    product_id = data.get('product_id')
-    quantity = data.get('quantity')
-
-    cart = Cart.query.filter_by(user_id=user_id).first()
-
-    if not cart:
-        return jsonify({"error": "Cart not found"}), 404
-
-    product = Product.query.get(product_id)
-
+    product = Product.query.get(data['product_id'])
     if not product:
         return jsonify({"error": "Product not found"}), 404
-
-    cart_item = CartItem.query.filter_by(cart=cart, product=product).first()
-
-    if not cart_item:
-        return jsonify({"error": "Item not found in cart"}), 404
-
-    cart_item.quantity = quantity
+    product.quantity = data['quantity']
     db.session.commit()
-
-    return jsonify({"message": "Item quantity updated successfully"})
+    return jsonify({"message": "Product quantity updated successfully"})
