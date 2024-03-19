@@ -5,47 +5,124 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shopping Cart</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 <body>
-<div class="container mx-auto mt-10">
-    <div class="flex shadow-md my-10">
-        <div class="w-3/4 bg-white px-10 py-10">
-            <div class="flex justify-between border-b pb-8">
-                <h1 class="text-5xl font-bold text-gray-900">Shopping Cart</h1>
-            </div>
-            <a href="#" class="flex font-semibold text-indigo-600 text-sm mt-10">
-                <svg class="fill-current mr-2 text-indigo-600 w-4" viewBox="0 0 448 512"><path d="..."></path></svg>
-                Continue Shopping
-            </a>
-        </div>
-
-        <!-- Item cards here-->
-
-        <div id="summary" class="w-1/4 divide-gray-400 px-8 py-10">
-            <h1 class="font-semibold text-2xl pb-8 py-10">Order Summary</h1>
-            <div class="flex justify-between mt-10 mb-5">
-                <span class="font-semibold text-sm text-gray-600 uppercase">Subtotal</span>
-                <span class="font-semibold text-gray-600 text-sm">$0.00</span>
-            </div>
-            <div class="flex justify-between mt-10 mb-5">
-                <span class="font-semibold text-sm text-gray-600 uppercase">Shipping estimate</span>
-                <span class="font-semibold text-gray-600 text-sm">$5.00</span>
-            </div>
-            <div class="flex justify-between mt-10 mb-5">
-                <span class="font-semibold text-sm text-gray-600 uppercase">Tax estimate</span>
-                <span class="font-semibold text-gray-600 text-sm">$0.00</span>
+<div class="container mx-auto mt-10 w-11/12">
+    <div class="flex my-10 shadow-md">
+        <div class="w-2/3 bg-white px-10 py-10">
+            <div class="border-b pb-8 flex justify-between w-full">
+                <h1 class="font-bold text-gray-900 text-3xl">Shopping Cart</h1>
             </div>
             <div class="mt-8">
-                <div class="flex font-semibold justify-between py-6 text-sm uppercase">
-                    <span>Total cost</span>
-                    <span>$0.00</span>
+                <div class="flow-root">
+                    <ul id="product-list" role="list" class="divide-y divide-gray-200 -my-6 w-full">
+                        <!-- Products will be inserted here -->
+                    </ul>
                 </div>
-                <button class="bg-indigo-500 font-semibold hover:bg-indigo-600 py-3 text-sm text-white uppercase w-full">Checkout</button>
             </div>
         </div>
-
+        <div id="summary" class="max-w-md w-96 p-4 bg-gray-50 rounded-lg h-96 mt-20">
+            <h1 class="text-lg font-semibold text-gray-900 pb-2">Order summary</h1>
+            <div class="mt-6">
+                <!-- Summary details will be inserted here -->
+                <div class="flex justify-between mb-5">
+                    <span class="font-semibold text-sm text-gray-600 uppercase">Subtotal</span>
+                    <span class="font-semibold text-gray-600 text-sm subtotal">$0.00</span>
+                </div>
+                <hr class="mb-5"> 
+                <div class="flex justify-between mb-5">
+                    <span class="font-semibold text-sm text-gray-600 uppercase">Shipping estimate</span>
+                    <span class="font-semibold text-gray-600 text-sm shipping-estimate">$5.00</span>
+                </div>
+                <hr class="mb-5"> 
+                <div class="flex justify-between mb-5">
+                    <span class="font-semibold text-sm text-gray-600 uppercase">Tax estimate</span>
+                    <span class="font-semibold text-gray-600 text-sm tax-estimate">$0.00</span>
+                </div>
+                <hr class="mb-5"> 
+                <div class="flex justify-between mb-5">
+                    <span class="font-semibold text-sm text-gray-600 uppercase">Order total</span>
+                    <span class="font-semibold text-gray-600 text-sm order-total">$0.00</span>
+                </div>
+                <div class="mt-8">
+                    <div class="mt-6">
+                        <a href="#" class="flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700">Checkout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
-<script src="https://cdn.tailwindcss.com"></script>
+
+<script>
+    $(document).ready(function() {
+        var subtotal = 0;
+        $.getJSON('/cart', function(data) {
+            var items = data.items;
+            items.forEach(function(item) {
+                var listItem = `<li class="flex py-6" data-price="${item.price}">
+                    <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
+                        <img src="/static${item.image}" alt="${item.name}" class="h-full w-full object-cover object-center">
+                    </div>
+                    <div class="ml-4 flex flex-1 flex-col">
+                        <div>
+                            <div class="flex justify-between text-base font-medium text-gray-900">
+                                <h3>${item.name}</h3>
+                                <p class="ml-4">Price: $<span class="price">${item.price}</span></p>
+                            </div>
+                            <p>Total: $<span class="total-price">${(item.quantity * item.price).toFixed(2)}</span></p>
+                            <p class="mt-1 text-sm text-gray-500">${item.description}</p>
+                        </div>
+                        <div class="flex flex-1 items-end justify-between text-sm">
+                            <input class="quantity-input text-gray-900" type="number" value="${item.quantity}" min="1" data-product-id="${item.id}" />
+                            <div class="flex">
+                                <button type="button" class="font-medium text-indigo-600 hover:text-indigo-500">Remove</button>
+                            </div>
+                        </div>
+                    </div>
+                </li>`;
+                $('#product-list').append(listItem);
+                subtotal += item.quantity * item.price;
+            });
+            var shippingEstimate = 5.00;
+            var taxEstimate = subtotal * 0.05;
+            var orderTotal = subtotal + shippingEstimate + taxEstimate;
+            
+            $('#summary .subtotal').text(subtotal.toFixed(2));
+            $('#summary .shipping-estimate').text(shippingEstimate.toFixed(2));
+            $('#summary .tax-estimate').text(taxEstimate.toFixed(2));
+            $('#summary .order-total').text(orderTotal.toFixed(2));
+        });
+
+        // Listen for quantity change events
+        $('#product-list').on('change', '.quantity-input', function() {
+            const productId = $(this).data('product-id');
+            const newQuantity = parseInt($(this).val(), 10);
+            const unitPrice = parseFloat($(this).closest('li').attr('data-price'));
+
+            const newTotalPrice = newQuantity * unitPrice;
+
+            // Update the displayed total price for this product
+            $(this).closest('li').find('.total-price').text(newTotalPrice.toFixed(2));
+
+            $.ajax({
+                url: `/cart/update_item`,
+                type: 'PUT',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    product_id: productId,
+                    quantity: newQuantity
+                }),
+                success: function(response) {
+                    console.log('Quantity and price updated', response);
+                },
+                error: function(error) {
+                    console.error('Error updating quantity', error);
+                }
+            });
+        });
+    });
+</script>
 </body>
 </html>

@@ -3,35 +3,35 @@
         "name": "Basic hoodie",
         "description": "Black",
         "price": 20.00,
-        "image": "images/sweater.jpeg"
+        "image": "/images/sweater.jpeg"
 
     },
     {
         "name": "Basic Tee",
         "description": "Aspen White",
         "price": 20.00,
-        "image": "images/bt2.jpeg"
+        "image": "/images/bt2.jpeg"
 
     },
     {
         "name": "Anime Tee",
         "description": "Attack on Titan",
         "price": 25.00,
-        "image": "images/shirt.jpeg"
+        "image": "/images/shirt.jpeg"
 
     },
     {
         "name": "Zip Tote Basket",
         "description": "Blue",
         "price": 140.00,
-        "image": "images/btp1.jpeg"
+        "image": "/images/btp1.jpeg"
 
     },
     {
         "name": "Nomad Puch",
         "description": "White and Black",
         "price": 50.00,
-        "image": "images/np1.jpeg"
+        "image": "/images/np1.jpeg"
 
     }
 ]
